@@ -1,6 +1,7 @@
 module Forward where
 
 import Types (Layer, Network, Neuron (..))
+import Safe (lastMay)
 
 
 -- Calculate the output of a single neuron
@@ -12,7 +13,5 @@ calculateOutput (Neuron weights' bias' (activation', _)) inputs =
 calculateLayerOutputs :: Layer -> [Float] -> [Float]
 calculateLayerOutputs layer inputs = map (`calculateOutput` inputs) layer
 
--- Calculate the outputs of the entire network
-calculateNetworkOutputs :: Network -> [Float] -> [[Float]]
-calculateNetworkOutputs network inputs =
-  scanl (flip calculateLayerOutputs) inputs network
+calculateNetworkOutputs :: Network -> [Float] -> Maybe [[Float]]
+calculateNetworkOutputs network inputs = Just $ scanl (flip calculateLayerOutputs) inputs network

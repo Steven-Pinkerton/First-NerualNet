@@ -91,6 +91,8 @@ common shared
     , random
     , vector
     , random-shuffle
+    , MonadRandom
+    , safe
   
 
   hs-source-dirs:     src
