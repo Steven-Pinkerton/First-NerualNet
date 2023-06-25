@@ -1,35 +1,39 @@
 module Training where
 
-import Backward
-    ( calculateOutputError, calculateOutputDelta, updateBias )
-import Forward ( calculateNetworkOutputs )
-import Loss ()
-import Types ( Network, Neuron(bias), Inputs, Target, Outputs )
+import Backward (calculateNetworkErrorDeltas)
 
--- Define the forward pass
-forwardPass :: Network -> Inputs -> Outputs
-forwardPass = calculateNetworkOutputs
+import Data.List (foldl')
+import Forward (calculateNetworkOutputs)
+import Loss (crossEntropyLoss)
+import Types (Inputs, LearningRate, Network, Target)
+import Utility (oneHotEncode, shuffle)
+import System.Random
 
--- Define the backward pass
-backwardPass :: Network -> Outputs -> Target -> Network
-backwardPass network outputs target =
-  let learningRate = 0.01 -- you might want to define this elsewhere
-      outputErrors = zipWith calculateOutputError target outputs
-      outputDeltas = map calculateOutputDelta outputErrors
-      newNetwork = zipWith (\neuron delta -> neuron {bias = updateBias (bias neuron) learningRate delta}) network outputDeltas
-   in newNetwork
+-- | Train the network over multiple epochs.
+train :: RandomGen g => Network -> [(Inputs, Target)] -> LearningRate -> Int -> g -> (Network, g)
+train network trainingData learningRate epochs = runRand (train' network trainingData learningRate epochs)
 
--- Define the main training loop
-trainNetwork :: Network -> [(Inputs, Target)] -> Float -> Int -> Network
-trainNetwork network trainingData learningRate epochs =
-  let updatedNetwork = foldl' trainOnce network trainingData
-   in if epochs > 0
-        then trainNetwork updatedNetwork trainingData learningRate (epochs - 1)
-        else updatedNetwork
-  where
-    -- Function to train the network on a single (input, target) pair
-    trainOnce :: Network -> (Inputs, Target) -> Network
-    trainOnce networkk (inputs, target) =
-      let outputs = forwardPass networkk inputs
-          network' = backwardPass networkk outputs target
-       in network'
+train' :: RandomGen g => Network -> [(Inputs, Target)] -> LearningRate -> Int -> Rand g Network
+train' network trainingData learningRate epochs =
+  foldl' (trainEpoch trainingData learningRate) (return network) [1 .. epochs]
+
+-- | Train the network for one epoch.
+trainEpoch :: RandomGen g => [(Inputs, Target)] -> LearningRate -> Rand g Network -> Int -> Rand g Network
+trainEpoch trainingData learningRate networkM _ = do
+  network <- networkM
+  shuffledData <- shuffle trainingData
+  return $ foldl' (trainMiniBatch learningRate) network (miniBatches shuffledData)
+
+-- | Split the training data into mini-batches.
+miniBatches :: [(Inputs, Target)] -> [[(Inputs, Target)]]
+miniBatches = undefined -- Implement this function
+
+-- | Train the network on a mini-batch of training examples.
+trainMiniBatch :: LearningRate -> Network -> [(Inputs, Target)] -> Network
+trainMiniBatch learningRate network miniBatch =
+  let (inputs, targets) = unzip miniBatch
+      outputs = map (calculateNetworkOutputs network) inputs
+      targets' = map oneHotEncode targets
+      losses = zipWith crossEntropyLoss targets' outputs
+      deltas = fromMaybe [] $ calculateNetworkErrorDeltas network targets' outputs
+   in foldl' (updateNetwork learningRate deltas) network losses

@@ -90,6 +90,7 @@ common shared
     , hmatrix
     , random
     , vector
+    , random-shuffle
   
 
   hs-source-dirs:     src
