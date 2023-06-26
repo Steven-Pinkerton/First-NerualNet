@@ -93,6 +93,7 @@ common shared
     , random-shuffle
     , MonadRandom
     , safe
+    , split
   
 
   hs-source-dirs:     src
