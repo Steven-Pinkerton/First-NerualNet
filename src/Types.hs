@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 module Types where
 
 import Text.Show (show)
@@ -18,6 +19,7 @@ data Neuron = Neuron
 
 -- Custom Show instance for Neuron for prettier printing
 instance Show Neuron where
+  show :: Neuron -> String
   show (Neuron weights' bias' _) =
     "Neuron {weights = " ++ Text.Show.show weights' ++ ", bias = " ++ Text.Show.show bias' ++ "}"
 
