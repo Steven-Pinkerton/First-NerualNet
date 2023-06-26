@@ -5,10 +5,10 @@ import Control.Monad.Random ( runRand, Rand, RandomGen )
 import Forward (calculateNetworkOutputs)
 import Loss (crossEntropyLoss)
 import Types (Inputs, LearningRate, Network, Target)
-import Utility (oneHotEncode, shuffle, updateNetwork, updateNetworkBatch)
+import Utility (oneHotEncode, shuffle, updateNetworkBatch)
 import System.Random ()
 import Data.List ( zipWith3 )
-import Data.Maybe
+import Data.Maybe ( fromJust )
 
 -- | Train the network over multiple epochs.
 train :: RandomGen g => Network -> [(Inputs, Target)] -> LearningRate -> Int -> g -> (Network, g)
