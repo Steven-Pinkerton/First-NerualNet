@@ -1,7 +1,6 @@
 module Forward where
 
 import Types (Layer, Network, Neuron (..))
-import Safe (lastMay)
 
 
 -- Calculate the output of a single neuron
