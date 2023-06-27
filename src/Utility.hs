@@ -7,10 +7,10 @@ import Control.Monad.Random
     ( Rand )
 import System.Random.Shuffle (shuffleM)
 import Data.List ( zipWith3, (!!) )
-import Control.Monad.Random.Class
+import Control.Monad.Random.Class ( MonadRandom(getRandomRs) )
 
 getWeights :: Layer -> [Float]
-getWeights = concat . map weights
+getWeights = concatMap weights
 
 
 -- The sigmoid activation function

@@ -1,7 +1,7 @@
 module Training where
 
 import Backward (calculateNetworkErrorDeltas)
-import Control.Monad.Random ( runRand, Rand, RandomGen, RandT, evalRand )
+import Control.Monad.Random ( Rand, RandomGen, RandT )
 import Forward (calculateNetworkOutputs)
 import Loss (crossEntropyLoss)
 import Types (Inputs, LearningRate, Network, Target, BatchSize)

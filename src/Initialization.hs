@@ -10,10 +10,10 @@ import Utility (createActivationFunction)
 -}
 initializeNeuron :: RandomGen g => g -> Int -> (Neuron, g)
 initializeNeuron g nInputs =
-  let (weights, g') = initializeWeights g nInputs -- generate weights
-      bias = 0 -- initialize bias to zero
+  let (weights', g') = initializeWeights g nInputs -- generate weights
+      bias' = 0 -- initialize bias to zero
       activationFunction = createActivationFunction "sigmoid" -- create the activation function
-   in (Neuron weights bias activationFunction, g')
+   in (Neuron weights' bias' activationFunction, g')
 
 {- | Initialize weights with Xavier initialization.
  The Xavier initialization generates random weights from a uniform distribution with limits ±sqrt(1/n),
