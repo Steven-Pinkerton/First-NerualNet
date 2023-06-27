@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use one" #-}
 module Utility where
-import Types ( Layer, Neuron(weights, bias), ActivationFunction, LearningRate, Network, Inputs )
+import Types ( Layer, Neuron(weights, bias), ActivationFunction, LearningRate, Network, Inputs, Target )
 import System.Random ( RandomGen )
 import Control.Monad.Random
     ( Rand )
