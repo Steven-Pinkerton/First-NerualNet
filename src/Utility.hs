@@ -9,38 +9,40 @@ import System.Random.Shuffle (shuffleM)
 import Data.List ( zipWith3, (!!) )
 import Control.Monad.Random.Class ( MonadRandom(getRandomRs) )
 
+-- | Retrieves the weights from each neuron in a layer.
 getWeights :: Layer -> [Float]
 getWeights = concatMap weights
 
-
--- The sigmoid activation function
+-- | The sigmoid activation function, used to introduce non-linearity to the network.
 sigmoid :: Float -> Float
-sigmoid x = 1 / (1 + exp (- x))
+sigmoid x = 1 / (1 + exp (-x))
 
--- The derivative of the sigmoid function
+-- | The derivative of the sigmoid function, used during backpropagation to adjust the network's weights and biases.
 sigmoid' :: Float -> Float
 sigmoid' x = let sx = sigmoid x in sx * (1 - sx)
 
--- Create an activation function
+-- | Factory function to create an activation function given its name.
 createActivationFunction :: String -> ActivationFunction
 createActivationFunction "sigmoid" = (sigmoid, sigmoid')
 createActivationFunction _ = error "Unknown activation function"
 
--- One-hot encode a digit
+-- | One-hot encode a digit into a list of zeroes with a single one at the index of the digit.
 oneHotEncode :: Int -> [Float]
 oneHotEncode n = [fromIntegral $ fromEnum (i == n) | i <- [0 .. 9]]
 
--- Shuffle a list
--- Shuffles a list, returning both the shuffled list and a new generator
+-- | Shuffle a list using a random generator.
 shuffle :: RandomGen g => [a] -> Rand g [a]
 shuffle = shuffleM
 
+-- | Update the network's weights and biases based on the calculated error delta.
 updateNetwork :: LearningRate -> [[[Float]]] -> [[Float]] -> Network -> Network
 updateNetwork learningRate = zipWith3 (updateLayer learningRate)
 
+-- | Update the weights and biases of a single layer based on the error delta.
 updateLayer :: LearningRate -> [[Float]] -> [Float] -> Layer -> Layer
 updateLayer learningRate = zipWith3 (updateNeuron learningRate)
 
+-- | Update the weights and biases of a single neuron based on the error delta.
 updateNeuron :: LearningRate -> [Float] -> Float -> Neuron -> Neuron
 updateNeuron learningRate neuronInputs delta neuron =
   neuron
@@ -48,16 +50,17 @@ updateNeuron learningRate neuronInputs delta neuron =
     , bias = bias neuron - learningRate * delta
     }
 
-
+-- | Update the network weights and biases using multiple batches of inputs and their respective error deltas.
 updateNetworkBatch :: LearningRate -> Network -> [(Inputs, [[Float]])] -> Network
 updateNetworkBatch learningRate network inputsAndDeltas =
   let (allInputs, allDeltas) = unzip inputsAndDeltas
    in updateNetwork learningRate allDeltas allInputs network
 
-
+-- | Calculate the mean of a list of Floats.
 mean :: [Float] -> Float
 mean xs = sum xs / fromIntegral (length xs)
 
+-- | Shuffle a list in a random order, using a MonadRandom context.
 shuffle' :: MonadRandom m => [a] -> m [a]
 shuffle' xs = do
   ns <- getRandomRs (0, length xs - 1)

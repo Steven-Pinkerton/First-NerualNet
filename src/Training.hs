@@ -11,11 +11,17 @@ import Data.List ( zipWith3 )
 import Data.Maybe ( fromJust )
 import Data.List.Split (chunksOf)
 
--- | Train the network over multiple epochs.
+{- | Train the network over multiple epochs.
+ This function repeatedly applies `trainAndValidateEpoch` on a network over several epochs.
+-}
 train' :: (RandomGen g, MonadIO m) => Network -> BatchSize -> [(Inputs, Target)] -> [(Inputs, Target)] -> LearningRate -> Int -> RandT g m Network
 train' network batchSize trainingData validationData learningRate epochs =
   foldl' (trainAndValidateEpoch batchSize trainingData validationData learningRate) (return network) [1 .. epochs]
 
+{- | Train the network for one epoch and validate its performance.
+ This function first shuffles the training data, then applies `trainMiniBatch` on the network for each mini-batch,
+ calculates the validation loss, and then prints it out before returning the updated network.
+-}
 trainAndValidateEpoch :: (RandomGen g, MonadIO m) => BatchSize -> [(Inputs, Target)] -> [(Inputs, Target)] -> LearningRate -> RandT g m Network -> Int -> RandT g m Network
 trainAndValidateEpoch batchSize trainingData validationData learningRate networkM _ = do
   network <- networkM
@@ -25,20 +31,26 @@ trainAndValidateEpoch batchSize trainingData validationData learningRate network
   liftIO $ putStrLn $ "Epoch complete. Validation loss: " ++ show validationLoss
   return network'
 
+{- | Calculate the average loss of a network on some data.
+ This function first calculates the network's output for each input in the data, then calculates the cross-entropy loss
+ for each output-target pair, and finally calculates the mean of all losses.
+-}
 computeLoss :: Network -> [(Inputs, Target)] -> Float
-computeLoss network data1 = 
+computeLoss network data1 =
   let (inputs, targets) = unzip data1
       maybeOutputs = mapM (calculateNetworkOutputs network) inputs
       losses = case maybeOutputs of
-                 Just outputs ->
-                   let targets' = map oneHotEncode targets
-                       flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
-                   in zipWith crossEntropyLoss targets' flattenedOutputs
-                 Nothing -> []
-  in mean losses
+        Just outputs ->
+          let targets' = map oneHotEncode targets
+              flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
+           in zipWith crossEntropyLoss targets' flattenedOutputs
+        Nothing -> []
+   in mean losses
 
-
--- | Train the network for one epoch.
+{- | Train the network for one epoch.
+ This function first shuffles the training data, then splits it into mini-batches,
+ and then applies `trainMiniBatch` on the network for each mini-batch.
+-}
 trainEpoch :: RandomGen g => [(Inputs, Target)] -> LearningRate -> Rand g Network -> Int -> Rand g Network
 trainEpoch trainingData learningRate networkM _ = do
   network <- networkM
@@ -46,11 +58,16 @@ trainEpoch trainingData learningRate networkM _ = do
   let miniBatchedData = miniBatches 10 shuffledData -- The batch size is set to 10, but you can adjust this
   return $ concatMap (trainMiniBatch learningRate network) miniBatchedData
 
--- | Split the training data into mini-batches of a given size.
+{- | Split the training data into mini-batches of a given size.
+ This function simply splits a list into chunks of a specific size.
+-}
 miniBatches :: Int -> [(Inputs, Target)] -> [[(Inputs, Target)]]
 miniBatches = chunksOf
 
--- | Train the network on a mini-batch of training examples.
+{- | Train the network on a mini-batch of training examples.
+ This function first calculates the network's output for each input in the mini-batch,
+ then calculates the error delta for each output-target pair, and then updates the network using these deltas.
+-}
 trainMiniBatch :: LearningRate -> Network -> [(Inputs, Target)] -> Network
 trainMiniBatch learningRate network miniBatch =
   let (inputs, targets) = Prelude.unzip miniBatch
