@@ -50,7 +50,8 @@ loadValidationData path = do
 preprocess :: [(Inputs, Label)] -> [(Inputs, Target)]
 preprocess = map (bimap normalize oneHotEncode)
 
-parseDataLine :: T.Text -> (Inputs, Target)
+
+parseDataLine :: T.Text -> (Inputs, Label)
 parseDataLine line =
   let numbers = map parseToFloat $ T.splitOn "," line
    in (fromMaybe [] $ viaNonEmpty tail numbers, round . fromMaybe 0 $ viaNonEmpty head numbers)
