@@ -4,7 +4,7 @@ module Network
   ) where
 
 import System.Random (newStdGen, randoms)
-import Types (Network, Layer, Neuron(..), ActivationFunction)
+import Types (Layer, Network, Neuron (..), ActivationType)
 import Forward ( calculateLayerOutputs )
 import Data.List ( zipWith3 )
 
@@ -13,7 +13,7 @@ import Data.List ( zipWith3 )
 calculateNetworkOutputs :: Network -> [Float] -> Maybe [[Float]]
 calculateNetworkOutputs network inputs = Just $ scanl (flip calculateLayerOutputs) inputs network
 
-initializeNetwork :: ActivationFunction -> [Int] -> IO Network
+initializeNetwork :: ActivationType -> [Int] -> IO Network
 initializeNetwork activationFunc architecture = do
   gen <- newStdGen
   let networkWeights = map (\n -> take n $ randoms gen :: [Float]) architecture

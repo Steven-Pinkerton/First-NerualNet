@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use one" #-}
 module Utility where
-import Types ( Layer, Neuron(weights, bias), ActivationFunction, LearningRate, Network, Inputs )
+import Types ( Layer, Neuron(weights, bias), ActivationType (Sigmoid, ReLU), LearningRate, Network, Inputs )
 import System.Random ( RandomGen )
 import Control.Monad.Random
     ( Rand )
@@ -22,9 +22,11 @@ sigmoid' :: Float -> Float
 sigmoid' x = let sx = sigmoid x in sx * (1 - sx)
 
 -- | Factory function to create an activation function given its name.
-createActivationFunction :: String -> ActivationFunction
-createActivationFunction "sigmoid" = (sigmoid, sigmoid')
-createActivationFunction _ = error "Unknown activation function"
+-- | Factory function to create an activation type given its name.
+createActivationType :: String -> ActivationType
+createActivationType "sigmoid" = Sigmoid
+createActivationType "relu" = ReLU
+createActivationType _ = error "Unknown activation function"
 
 -- | One-hot encode a digit into a list of zeroes with a single one at the index of the digit.
 oneHotEncode :: Int -> [Float]
@@ -71,3 +73,8 @@ normalize xs =
   let maxVal = maximum xs
       minVal = minimum xs
    in map (\x -> (x - minVal) / (maxVal - minVal)) xs
+
+
+activationFunctions :: ActivationType -> (Float -> Float, Float -> Float)
+activationFunctions Sigmoid = (sigmoid, sigmoid')
+activationFunctions Relu = (reluFunction, reluDerivative)

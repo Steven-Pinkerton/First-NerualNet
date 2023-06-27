@@ -33,9 +33,8 @@ updateBias bias' learningRate delta = bias' - learningRate * delta
 -- Compute the errors and deltas for a layer
 calculateLayerErrorDeltas :: Layer -> [Float] -> [Float] -> [Float] -> [Float]
 calculateLayerErrorDeltas layer nextDeltas nextWeights outputs =
-  let activationDerivatives = zipWith snd (map activation layer) outputs
+  let activationDerivatives = zipWith snd (map (snd . activationFunctions . activationType) layer) outputs
    in zipWith3 calculateHiddenError nextWeights nextDeltas activationDerivatives
-
 
 -- Compute the errors and deltas for the network
 calculateNetworkErrorDeltas :: Network -> [Float] -> [[Float]] -> Maybe [[Float]]
@@ -43,7 +42,7 @@ calculateNetworkErrorDeltas network targets outputs = do
   lastOutputs <- viaNonEmpty last outputs
   lastNetwork <- viaNonEmpty last network
   let outputErrors = zipWith calculateOutputError targets lastOutputs
-  let outputDeltas = zipWith calculateOutputDelta outputErrors (zipWith (\n output -> let (_, df) = activation n in df output) lastNetwork lastOutputs)
+  let outputDeltas = zipWith calculateOutputDelta outputErrors (zipWith (\n output -> let (_, df) = activationFunctions $ activationType n in df output) lastNetwork lastOutputs)
   hiddenLayers <- viaNonEmpty init network
   hiddenOutputs <- viaNonEmpty init outputs
   let networkWeights = map getWeights hiddenLayers -- new line here to get the weights
