@@ -94,6 +94,7 @@ common shared
     , MonadRandom
     , safe
     , split
+    , binary
   
 
   hs-source-dirs:     src

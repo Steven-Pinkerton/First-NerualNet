@@ -28,6 +28,9 @@ instance Show Neuron where
 -- corresponding to the number of neurons in the previous layer (or the number of inputs if it's the first layer).
 type Layer = [Neuron]
 
+-- The original class label, which is an Int in the range 0..9.
+type Label = Int
+
 -- A Network is a list of Layers.
 -- The output of each layer is used as the input for the next layer.
 type Network = [Layer]
@@ -38,7 +41,7 @@ type Inputs = [Float] -- length should be 784
 
 -- The Target for the MNIST task is represented as an Int in the range 0..9,
 -- but this needs to be converted to a one-hot encoded list of 10 elements for training the network.
-type Target = Int -- should be in the range [0..9]
+type Target = [Float] -- should be in the range [0..9]
 
 -- The Outputs from the network is a list of 10 probabilities, one for each digit from 0 to 9.
 -- The index of the maximum element in this list is the digit the network is predicting.

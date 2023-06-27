@@ -5,7 +5,7 @@ import Control.Monad.Random ( Rand, RandomGen, RandT )
 import Forward (calculateNetworkOutputs)
 import Loss (crossEntropyLoss)
 import Types (Inputs, LearningRate, Network, Target, BatchSize)
-import Utility (oneHotEncode, shuffle, updateNetworkBatch, mean, shuffle')
+import Utility (shuffle, updateNetworkBatch, mean, shuffle')
 import System.Random ()
 import Data.List ( zipWith3 )
 import Data.Maybe ( fromJust )
@@ -41,9 +41,8 @@ computeLoss network data1 =
       maybeOutputs = mapM (calculateNetworkOutputs network) inputs
       losses = case maybeOutputs of
         Just outputs ->
-          let targets' = map oneHotEncode targets
-              flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
-           in zipWith crossEntropyLoss targets' flattenedOutputs
+          let flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
+           in zipWith crossEntropyLoss targets flattenedOutputs
         Nothing -> []
    in mean losses
 
@@ -74,10 +73,9 @@ trainMiniBatch learningRate network miniBatch =
       maybeOutputs = mapM (calculateNetworkOutputs network) inputs
    in case maybeOutputs of
         Just outputs ->
-          let targets' = map oneHotEncode targets
-              flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
-              _losses = Prelude.zipWith crossEntropyLoss targets' flattenedOutputs
-              maybeDeltas = sequence $ Data.List.zipWith3 calculateNetworkErrorDeltas (repeat network) targets' outputs -- use `outputs` here
+          let flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
+              _losses = Prelude.zipWith crossEntropyLoss targets flattenedOutputs
+              maybeDeltas = sequence $ Data.List.zipWith3 calculateNetworkErrorDeltas (repeat network) targets outputs -- use `outputs` here
            in case maybeDeltas of
                 Just deltas ->
                   let inputsAndDeltas = Prelude.zip inputs deltas

@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use one" #-}
 module Utility where
-import Types ( Layer, Neuron(weights, bias), ActivationFunction, LearningRate, Network, Inputs, Target )
+import Types ( Layer, Neuron(weights, bias), ActivationFunction, LearningRate, Network, Inputs )
 import System.Random ( RandomGen )
 import Control.Monad.Random
     ( Rand )
 import System.Random.Shuffle (shuffleM)
-import Data.List ( zipWith3, (!!) )
+import Data.List ( zipWith3, (!!), maximum, minimum )
 import Control.Monad.Random.Class ( MonadRandom(getRandomRs) )
 
 -- | Retrieves the weights from each neuron in a layer.
@@ -65,3 +65,9 @@ shuffle' :: MonadRandom m => [a] -> m [a]
 shuffle' xs = do
   ns <- getRandomRs (0, length xs - 1)
   return $ map (xs !!) ns
+
+normalize :: [Float] -> [Float]
+normalize xs =
+  let maxVal = maximum xs
+      minVal = minimum xs
+   in map (\x -> (x - minVal) / (maxVal - minVal)) xs
