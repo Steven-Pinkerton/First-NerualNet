@@ -82,3 +82,20 @@ trainMiniBatch learningRate network miniBatch =
                    in updateNetworkBatch learningRate network inputsAndDeltas
                 Nothing -> network
         Nothing -> network
+
+{- | Evaluate the accuracy of a network on some test data.
+ This function first calculates the network's output for each input in the test data,
+ then compares these outputs to the expected targets to calculate the accuracy.
+-}
+evaluate :: Network -> [(Inputs, Target)] -> Float
+evaluate network testData =
+  let (inputs, targets) = unzip testData
+      maybeOutputs = mapM (calculateNetworkOutputs network) inputs
+   in case maybeOutputs of
+        Just outputs ->
+          let predictedTargets = map (fromJust . viaNonEmpty last) outputs
+              comparisons = zipWith (==) targets predictedTargets
+              correctPredictions = fromIntegral $ length $ filter id comparisons
+              totalPredictions = fromIntegral $ length comparisons
+           in (correctPredictions / totalPredictions) * 100
+        Nothing -> 0

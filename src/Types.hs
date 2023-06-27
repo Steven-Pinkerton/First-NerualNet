@@ -1,27 +1,26 @@
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+
+
 module Types where
 
-import Text.Show (show)
+import Data.Serialize (Serialize)
 
--- The ActivationFunction type is a tuple of two functions:
--- the activation function itself and its derivative.
--- This is used in the forward pass (to calculate the output of a neuron)
--- and in the backward pass (to calculate the gradients).
-type ActivationFunction = (Float -> Float, Float -> Float) -- (function, derivative)
+-- The ActivationType is just a simple enumeration of the
+-- possible activation functions that a neuron could use.
+data ActivationType = Sigmoid | ReLU
+  deriving stock (Generic, Show)
+  deriving anyclass (Serialize)
 
 -- The Neuron type represents a single neuron in the network.
--- It has a list of weights (one for each input), a bias, and an activation function.
+-- It has a list of weights (one for each input), a bias, and an activation type.
 data Neuron = Neuron
   { weights :: [Float]
   , bias :: Float
-  , activation :: ActivationFunction
+  , activationType :: ActivationType
   }
-
--- Custom Show instance for Neuron for prettier printing
-instance Show Neuron where
-  show :: Neuron -> String
-  show (Neuron weights' bias' _) =
-    "Neuron {weights = " ++ Text.Show.show weights' ++ ", bias = " ++ Text.Show.show bias' ++ "}"
+  deriving stock (Generic, Show)
+  deriving anyclass (Serialize)
 
 -- A Layer is simply a list of Neurons.
 -- All neurons in a layer have the same number of weights,

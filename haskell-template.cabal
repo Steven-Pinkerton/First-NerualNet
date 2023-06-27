@@ -95,6 +95,7 @@ common shared
     , safe
     , split
     , binary
+    , cereal
   
 
   hs-source-dirs:     src
