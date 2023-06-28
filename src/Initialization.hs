@@ -2,7 +2,7 @@ module Initialization where
 
 import System.Random (RandomGen, randomR)
 import Types (Network, Neuron (..))
-import Utility (createActivationFunction)
+import Utility (createActivationType)
 
 {- | Initialize a neuron with Xavier initialization for weights and zero initialization for bias.
  The Xavier initialization helps to ensure that the weights are not too small or too large at the start of the training.
@@ -12,8 +12,8 @@ initializeNeuron :: RandomGen g => g -> Int -> (Neuron, g)
 initializeNeuron g nInputs =
   let (weights', g') = initializeWeights g nInputs -- generate weights
       bias' = 0 -- initialize bias to zero
-      activationFunction = createActivationFunction "sigmoid" -- create the activation function
-   in (Neuron weights' bias' activationFunction, g')
+      activationType' = createActivationType "sigmoid" -- create the activation type
+   in (Neuron weights' bias' activationType', g')
 
 {- | Initialize weights with Xavier initialization.
  The Xavier initialization generates random weights from a uniform distribution with limits ±sqrt(1/n),

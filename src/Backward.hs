@@ -2,7 +2,8 @@ module Backward where
 
 import Types (Layer, Network, Neuron (..))
 import Data.List (zipWith3)
-import Utility ( getWeights )
+import Utility (activationFunctions, getWeights)
+
 
 -- Compute the error of a single neuron in the output layer
 calculateOutputError :: Float -> Float -> Float
@@ -33,7 +34,7 @@ updateBias bias' learningRate delta = bias' - learningRate * delta
 -- Compute the errors and deltas for a layer
 calculateLayerErrorDeltas :: Layer -> [Float] -> [Float] -> [Float] -> [Float]
 calculateLayerErrorDeltas layer nextDeltas nextWeights outputs =
-  let activationDerivatives = zipWith snd (map (snd . activationFunctions . activationType) layer) outputs
+  let activationDerivatives = zipWith (\n output -> let (_, df) = activationFunctions $ activationType n in df output) layer outputs
    in zipWith3 calculateHiddenError nextWeights nextDeltas activationDerivatives
 
 -- Compute the errors and deltas for the network

@@ -2,6 +2,7 @@ module Main where
 
 import Training ( train' ) -- import necessary modules
 import Initialization ( initializeNetwork )
+import DataLoader ( loadTrainingData, loadValidationData, preprocess )
 
 main :: IO ()
 main = do

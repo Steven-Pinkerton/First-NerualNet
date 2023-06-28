@@ -75,6 +75,19 @@ normalize xs =
    in map (\x -> (x - minVal) / (maxVal - minVal)) xs
 
 
+
 activationFunctions :: ActivationType -> (Float -> Float, Float -> Float)
 activationFunctions Sigmoid = (sigmoid, sigmoid')
-activationFunctions Relu = (reluFunction, reluDerivative)
+activationFunctions ReLU = (reluFunction, reluDerivative)
+
+-- | The ReLU activation function, used to introduce non-linearity to the network.
+reluFunction :: Float -> Float
+reluFunction x
+  | x < 0 = 0
+  | otherwise = x
+
+-- | The derivative of the ReLU function, used during backpropagation to adjust the network's weights and biases.
+reluDerivative :: Float -> Float
+reluDerivative x
+  | x < 0 = 0
+  | otherwise = 1
