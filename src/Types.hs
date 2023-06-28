@@ -1,11 +1,10 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
-
+{-# LANGUAGE DeriveGeneric #-}
 
 module Types where
 
+import Data.Binary (Binary)
 import Data.Serialize (Serialize)
-import Data.Binary ( Binary )
 
 -- The ActivationType is just a simple enumeration of the
 -- possible activation functions that a neuron could use.

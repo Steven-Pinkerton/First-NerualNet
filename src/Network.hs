@@ -1,14 +1,12 @@
-module Network 
-( initializeNetwork
-, calculateNetworkOutputs
-  ) where
+module Network (
+  initializeNetwork,
+  calculateNetworkOutputs,
+) where
 
+import Data.List (zipWith3)
+import Forward (calculateLayerOutputs)
 import System.Random (newStdGen, randoms)
-import Types (Layer, Network, Neuron (..), ActivationType)
-import Forward ( calculateLayerOutputs )
-import Data.List ( zipWith3 )
-
-
+import Types (ActivationType, Layer, Network, Neuron (..))
 
 calculateNetworkOutputs :: Network -> [Float] -> Maybe [[Float]]
 calculateNetworkOutputs network inputs = Just $ scanl (flip calculateLayerOutputs) inputs network

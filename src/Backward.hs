@@ -1,9 +1,8 @@
 module Backward where
 
-import Types (Layer, Network, Neuron (..))
 import Data.List (zipWith3)
+import Types (Layer, Network, Neuron (..))
 import Utility (activationFunctions, getWeights)
-
 
 -- Compute the error of a single neuron in the output layer
 calculateOutputError :: Float -> Float -> Float

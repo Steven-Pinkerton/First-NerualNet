@@ -1,6 +1,6 @@
 module Loss where
-import GHC.Float (log)
 
+import GHC.Float (log)
 
 -- Cross entropy loss for a single example
 -- This function is used during the training of the network to quantify the difference
@@ -13,4 +13,4 @@ import GHC.Float (log)
 -- that the predicted probabilities are closer to the true classes, and therefore that the
 -- network is performing better.
 crossEntropyLoss :: [Float] -> [Float] -> Float
-crossEntropyLoss yTrue yPred = - sum (zipWith (\yT yP -> yT * log yP) yTrue yPred)
+crossEntropyLoss yTrue yPred = -sum (zipWith (\yT yP -> yT * log yP) yTrue yPred)

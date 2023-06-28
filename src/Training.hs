@@ -1,15 +1,15 @@
 module Training where
 
 import Backward (calculateNetworkErrorDeltas)
-import Control.Monad.Random ( Rand, RandomGen, RandT )
+import Control.Monad.Random (Rand, RandT, RandomGen)
+import Data.List (zipWith3)
+import Data.List.Split (chunksOf)
+import Data.Maybe (fromJust)
 import Forward (calculateNetworkOutputs)
 import Loss (crossEntropyLoss)
-import Types (Inputs, LearningRate, Network, Target, BatchSize)
-import Utility (shuffle, updateNetworkBatch, mean, shuffle', argmax)
 import System.Random ()
-import Data.List ( zipWith3 )
-import Data.Maybe ( fromJust )
-import Data.List.Split (chunksOf)
+import Types (BatchSize, Inputs, LearningRate, Network, Target)
+import Utility (argmax, mean, shuffle, shuffle', updateNetworkBatch)
 
 {- | Train the network over multiple epochs.
  This function repeatedly applies `trainAndValidateEpoch` on a network over several epochs.

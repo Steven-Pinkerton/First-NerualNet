@@ -76,26 +76,26 @@ common shared
   build-depends:
     , aeson
     , async
-    , base          >=4.13.0.0 && <4.18.0.0.0
+    , base            >=4.13.0.0 && <4.18.0.0.0
+    , binary
+    , cereal
     , data-default
     , directory
     , filepath
+    , hmatrix
+    , MonadRandom
     , mtl
     , optics-core
     , profunctors
-    , relude        >=1.0
-    , shower
-    , time
-    , with-utf8
-    , hmatrix
     , random
-    , vector
     , random-shuffle
-    , MonadRandom
+    , relude          >=1.0
     , safe
+    , shower
     , split
-    , binary
-    , cereal
+    , time
+    , vector
+    , with-utf8
 
   other-modules:
     Backward

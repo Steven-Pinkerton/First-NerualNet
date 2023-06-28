@@ -1,6 +1,6 @@
 module DataLoader where
 
-import Data.Binary.Get ( getWord8, Get, getWord32be, runGet )
+import Data.Binary.Get (Get, getWord32be, getWord8, runGet)
 import Data.ByteString.Lazy qualified as BL
 import Data.Vector.Storable qualified as VS
 import Utility (normalize, oneHotEncode) -- Import the functions from Utility.hs

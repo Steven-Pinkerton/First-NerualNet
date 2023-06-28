@@ -1,13 +1,16 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Use one" #-}
 module Utility where
-import Types ( Layer, Neuron(weights, bias), ActivationType (Sigmoid, ReLU), LearningRate, Network, Inputs, Delta )
-import System.Random ( RandomGen )
-import Control.Monad.Random
-    ( Rand )
+
+import Control.Monad.Random (
+  Rand,
+ )
+import Control.Monad.Random.Class (MonadRandom (getRandomRs))
+import Data.List (maximum, maximumBy, minimum, zipWith3, (!!))
+import System.Random (RandomGen)
 import System.Random.Shuffle (shuffleM)
-import Data.List ( zipWith3, (!!), maximum, minimum, maximumBy )
-import Control.Monad.Random.Class ( MonadRandom(getRandomRs) )
+import Types (ActivationType (ReLU, Sigmoid), Delta, Inputs, Layer, LearningRate, Network, Neuron (bias, weights))
 
 -- | Retrieves the weights from each neuron in a layer.
 getWeights :: Layer -> [Float]
@@ -21,8 +24,9 @@ sigmoid x = 1 / (1 + exp (-x))
 sigmoid' :: Float -> Float
 sigmoid' x = let sx = sigmoid x in sx * (1 - sx)
 
--- | Factory function to create an activation function given its name.
--- | Factory function to create an activation type given its name.
+{- | Factory function to create an activation function given its name.
+ | Factory function to create an activation type given its name.
+-}
 createActivationType :: String -> ActivationType
 createActivationType "sigmoid" = Sigmoid
 createActivationType "relu" = ReLU
@@ -74,8 +78,6 @@ normalize xs =
       minVal = minimum xs
    in map (\x -> (x - minVal) / (maxVal - minVal)) xs
 
-
-
 activationFunctions :: ActivationType -> (Float -> Float, Float -> Float)
 activationFunctions Sigmoid = (sigmoid, sigmoid')
 activationFunctions ReLU = (reluFunction, reluDerivative)
@@ -92,10 +94,8 @@ reluDerivative x
   | x < 0 = 0
   | otherwise = 1
 
-  
 argmax :: Ord a => [a] -> Int
 argmax xs = fst $ maximumBy (comparing snd) (zip [0 ..] xs)
-
 
 averageInputsAndDeltas :: [(Inputs, Delta)] -> (Inputs, Delta)
 averageInputsAndDeltas inputsAndDeltas =

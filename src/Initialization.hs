@@ -22,7 +22,7 @@ initializeNeuron g nInputs =
 initializeWeights :: RandomGen g => g -> Int -> ([Float], g)
 initializeWeights g nInputs =
   let limit = sqrt (1 / fromIntegral nInputs) -- calculate the limit for the Xavier initialization
-      initWeight (ws, g') = let (w, g'') = randomR (- limit, limit) g' in (w : ws, g'')
+      initWeight (ws, g') = let (w, g'') = randomR (-limit, limit) g' in (w : ws, g'')
    in iterateN nInputs initWeight ([], g)
 
 -- Repeat a function n times
@@ -37,11 +37,12 @@ initializeLayer g nNeurons nInputs =
   let initNeuron (ns, g') = let (n, g'') = initializeNeuron g' nInputs in (n : ns, g'')
    in iterateN nNeurons initNeuron ([], g)
 
--- | Initialize a network of layers.
--- A network is a list of layers, and the number of layers in the network is defined by the user.
--- This function takes a list of integers, where each integer specifies the number of neurons in a layer.
+{- | Initialize a network of layers.
+ A network is a list of layers, and the number of layers in the network is defined by the user.
+ This function takes a list of integers, where each integer specifies the number of neurons in a layer.
+-}
 initializeNetwork :: RandomGen g => g -> [Int] -> (Network, g)
 initializeNetwork g layerSizes =
-  let sizes = zip (0:layerSizes) layerSizes  -- pair each layer size with the next one
-      initLayer (ns, g') (nInputs, nNeurons) = let (layer, g'') = initializeLayer g' nNeurons nInputs in (layer:ns, g'')
-  in foldl' initLayer ([], g) sizes
+  let sizes = zip (0 : layerSizes) layerSizes -- pair each layer size with the next one
+      initLayer (ns, g') (nInputs, nNeurons) = let (layer, g'') = initializeLayer g' nNeurons nInputs in (layer : ns, g'')
+   in foldl' initLayer ([], g) sizes

@@ -1,9 +1,11 @@
-import Training ( evaluate, train' )
-import Control.Monad.Random ( evalRandT, newStdGen )
-import Initialization ( initializeNetwork )
-import DataLoader
-    ( loadTrainingData, loadValidationData )
-import ModelIO ( saveModel )
+import Control.Monad.Random (evalRandT, newStdGen)
+import DataLoader (
+  loadTrainingData,
+  loadValidationData,
+ )
+import Initialization (initializeNetwork)
+import ModelIO (saveModel)
+import Training (evaluate, train')
 
 main :: IO ()
 main = do
