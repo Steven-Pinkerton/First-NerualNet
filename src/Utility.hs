@@ -1,12 +1,12 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use one" #-}
 module Utility where
-import Types ( Layer, Neuron(weights, bias), ActivationType (Sigmoid, ReLU), LearningRate, Network, Inputs )
+import Types ( Layer, Neuron(weights, bias), ActivationType (Sigmoid, ReLU), LearningRate, Network, Inputs, Delta )
 import System.Random ( RandomGen )
 import Control.Monad.Random
     ( Rand )
 import System.Random.Shuffle (shuffleM)
-import Data.List ( zipWith3, (!!), maximum, minimum )
+import Data.List ( zipWith3, (!!), maximum, minimum, maximumBy )
 import Control.Monad.Random.Class ( MonadRandom(getRandomRs) )
 
 -- | Retrieves the weights from each neuron in a layer.
@@ -91,3 +91,22 @@ reluDerivative :: Float -> Float
 reluDerivative x
   | x < 0 = 0
   | otherwise = 1
+
+  
+argmax :: Ord a => [a] -> Int
+argmax xs = fst $ maximumBy (comparing snd) (zip [0 ..] xs)
+
+
+averageInputsAndDeltas :: [(Inputs, Delta)] -> (Inputs, Delta)
+averageInputsAndDeltas inputsAndDeltas =
+  let (inputs, deltas) = unzip inputsAndDeltas
+   in (averageInputs inputs, averageDeltas deltas)
+
+averageInputs :: [[Float]] -> [Float]
+averageInputs inputs =
+  let inputLength = length (viaNonEmpty head inputs)
+      inputSum = foldl' (zipWith (+)) (replicate inputLength 0) inputs
+   in map (/ fromIntegral (length inputs)) inputSum
+
+averageDeltas :: [[Float]] -> [Float]
+averageDeltas = averageInputs -- if `Delta` has the same type and structure as `Inputs`

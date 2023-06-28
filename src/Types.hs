@@ -59,3 +59,7 @@ type Epochs = Int
 -- BatchSize is the number of training examples utilized in one iteration.
 -- It's a compromise between faster training (larger batch size) and better convergence (smaller batch size).
 type BatchSize = Int
+
+-- The Delta represents the error calculated during backpropagation.
+-- This is typically a list of Floats, depending on the structure of your network.
+type Delta = [Float] -- If Delta is represented as a list of floats

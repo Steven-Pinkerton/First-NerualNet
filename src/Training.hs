@@ -5,7 +5,7 @@ import Control.Monad.Random ( Rand, RandomGen, RandT )
 import Forward (calculateNetworkOutputs)
 import Loss (crossEntropyLoss)
 import Types (Inputs, LearningRate, Network, Target, BatchSize)
-import Utility (shuffle, updateNetworkBatch, mean, shuffle')
+import Utility (shuffle, updateNetworkBatch, mean, shuffle', argmax, averageInputsAndDeltas)
 import System.Random ()
 import Data.List ( zipWith3 )
 import Data.Maybe ( fromJust )
@@ -74,12 +74,11 @@ trainMiniBatch learningRate network miniBatch =
    in case maybeOutputs of
         Just outputs ->
           let flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
-              _losses = Prelude.zipWith crossEntropyLoss targets flattenedOutputs
               maybeDeltas = sequence $ Data.List.zipWith3 calculateNetworkErrorDeltas (repeat network) targets outputs -- use `outputs` here
            in case maybeDeltas of
                 Just deltas ->
                   let inputsAndDeltas = Prelude.zip inputs deltas
-                   in updateNetworkBatch learningRate network inputsAndDeltas
+                   in updateNetworkBatch learningRate network (averageInputsAndDeltas inputsAndDeltas)
                 Nothing -> network
         Nothing -> network
 
@@ -93,8 +92,9 @@ evaluate network testData =
       maybeOutputs = mapM (calculateNetworkOutputs network) inputs
    in case maybeOutputs of
         Just outputs ->
-          let predictedTargets = map (fromJust . viaNonEmpty last) outputs
-              comparisons = zipWith (==) targets predictedTargets
+          let predictedTargets = map (argmax . fromJust . viaNonEmpty last) outputs
+              actualTargets = map argmax targets
+              comparisons = zipWith (==) actualTargets predictedTargets
               correctPredictions = fromIntegral $ length $ filter id comparisons
               totalPredictions = fromIntegral $ length comparisons
            in (correctPredictions / totalPredictions) * 100
