@@ -96,7 +96,18 @@ common shared
     , split
     , binary
     , cereal
-  
+
+  other-modules:
+    , Backward
+    , DataLoader
+    , Forward
+    , Initialization
+    , Loss
+    , ModelIO
+    , Network 
+    , Training
+    , Types
+    , Utility
 
   hs-source-dirs:     src
   default-language:   Haskell2010
