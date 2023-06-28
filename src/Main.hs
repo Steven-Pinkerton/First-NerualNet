@@ -21,7 +21,7 @@ main = do
   -- 3. Train the network
   -- Choose the learning rate, batch size and number of epochs that work best for you
   let learningRate = 0.01
-  let batchSize = 10
+  let batchSize = 5
   let epochs = 30
   trainedNetwork <- evalRandT (train' network batchSize processedTrainingData processedValidationData learningRate epochs) gen
 
