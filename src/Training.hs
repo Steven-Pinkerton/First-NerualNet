@@ -69,16 +69,15 @@ miniBatches = chunksOf
 -}
 trainMiniBatch :: LearningRate -> Network -> [(Inputs, Target)] -> Network
 trainMiniBatch learningRate network miniBatch =
-  let (inputs, targets) = Prelude.unzip miniBatch
+  let (inputs, targets) = unzip miniBatch
       maybeOutputs = mapM (calculateNetworkOutputs network) inputs
    in case maybeOutputs of
         Just outputs ->
-          let flattenedOutputs = map (fromJust . viaNonEmpty last) outputs
-              maybeDeltas = sequence $ Data.List.zipWith3 calculateNetworkErrorDeltas (repeat network) targets outputs -- use `outputs` here
+          let maybeDeltas = sequence $ zipWith3 calculateNetworkErrorDeltas (repeat network) targets outputs
            in case maybeDeltas of
                 Just deltas ->
-                  let inputsAndDeltas = Prelude.zip inputs deltas
-                   in updateNetworkBatch learningRate network (averageInputsAndDeltas inputsAndDeltas)
+                  let inputsAndDeltas = zip inputs deltas
+                   in updateNetworkBatch learningRate network inputsAndDeltas
                 Nothing -> network
         Nothing -> network
 
