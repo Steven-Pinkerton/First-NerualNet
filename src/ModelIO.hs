@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use readFileBS" #-}
 module ModelIO where
 
 import Data.ByteString qualified as BS
@@ -6,7 +8,7 @@ import Types ( Network )
 
 -- | Save a neural network model to a file.
 saveModel :: FilePath -> Network -> IO ()
-saveModel path network = BS.writeFile path (encode network)
+saveModel path network = writeFileBS path (encode network)
 
 -- | Load a neural network model from a file.
 loadModel :: FilePath -> IO (Either String Network)

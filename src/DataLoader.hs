@@ -1,4 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use 'fromMaybe' from Relude" #-}
+{-# HLINT ignore "Use 'bimap' from Relude" #-}
+{-# HLINT ignore "Use 'lines' from Relude" #-}
+{-# HLINT ignore "Use readFileText" #-}
 
 module DataLoader where
 
@@ -9,10 +14,8 @@ import Data.Text.IO qualified as TIO
 import Types (Inputs, Target, Label)
 import Data.Bifunctor (bimap)
 import Data.Maybe (fromMaybe)
-import Data.Text qualified as T
 import Data.Text.Read (double)
 import Utility ( oneHotEncode, normalize )
-
 
 
 readImageHeader :: BL.ByteString -> (Int, Int, Int, Int)
