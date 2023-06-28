@@ -12,8 +12,6 @@ import Data.ByteString.Lazy qualified as BL
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
 import Types (Inputs, Target, Label)
-import Data.Bifunctor (bimap)
-import Data.Maybe (fromMaybe)
 import Data.Text.Read (double)
 import Utility ( oneHotEncode, normalize )
 

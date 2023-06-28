@@ -1,12 +1,14 @@
 module Forward where
 
 import Types (Layer, Network, Neuron (..))
+import Utility ( activationFunctions )
 
 
 -- Calculate the output of a single neuron
 calculateOutput :: Neuron -> [Float] -> Float
-calculateOutput (Neuron weights' bias' (activation', _)) inputs =
-  activation' $ sum (zipWith (*) weights' inputs) + bias'
+calculateOutput (Neuron weights' bias' activationType') inputs =
+  let (activation, _) = activationFunctions activationType'
+   in activation $ sum (zipWith (*) weights' inputs) + bias'
 
 -- Calculate the outputs of a layer of neurons
 calculateLayerOutputs :: Layer -> [Float] -> [Float]
