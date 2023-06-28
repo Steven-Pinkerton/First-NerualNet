@@ -15,7 +15,7 @@ main = do
 
   -- 2. Initialize a random neural network
   gen <- newStdGen -- you need to create a new random generator
-  let structure = [784, 16, 16, 10] -- example structure for a fully connected network with two hidden layers for MNIST
+  let structure = [784, 10, 10, 10] -- example structure for a fully connected network with two hidden layers for MNIST
   let (network, _) = initializeNetwork gen structure -- initialize the network with the random generator and the structure
 
   -- 3. Train the network
