@@ -23,14 +23,28 @@ train' network batchSize trainingData validationData learningRate epochs =
  calculates the validation loss, and then prints it out before returning the updated network.
 -}
 trainAndValidateEpoch :: (RandomGen g, MonadIO m) => BatchSize -> [(Inputs, Target)] -> [(Inputs, Target)] -> LearningRate -> RandT g m Network -> Int -> RandT g m Network
-trainAndValidateEpoch batchSize trainingData validationData learningRate networkM _ = do
+trainAndValidateEpoch batchSize trainingData validationData learningRate networkM epochNumber = do
   network <- networkM
   shuffledData <- shuffle' trainingData
   let network' = foldl' (trainMiniBatch learningRate) network (miniBatches batchSize shuffledData)
   let validationLoss = computeLoss network' validationData
-  liftIO $ putStrLn $ "Epoch complete. Validation loss: " ++ show validationLoss
+  let trainingLoss = computeLoss network' trainingData
+  let trainingAccuracy = evaluate network' trainingData
+  let validationAccuracy = evaluate network' validationData
+  liftIO $
+    putStrLn $
+      "Epoch: " ++ show epochNumber
+        ++ ", Training Loss: "
+        ++ show trainingLoss
+        ++ ", Validation Loss: "
+        ++ show validationLoss
+        ++ ", Training Accuracy: "
+        ++ show trainingAccuracy
+        ++ ", Validation Accuracy: "
+        ++ show validationAccuracy
   return network'
 
+  
 {- | Calculate the average loss of a network on some data.
  This function first calculates the network's output for each input in the data, then calculates the cross-entropy loss
  for each output-target pair, and finally calculates the mean of all losses.
