@@ -104,7 +104,7 @@ common shared
     , Initialization
     , Loss
     , ModelIO
-    , Network 
+    , Network
     , Training
     , Types
     , Utility
