@@ -21,4 +21,4 @@ initializeNetwork activationFunc architecture = do
   return $ zipWith3 createLayer networkWeights networkBiases architecture
   where
     createLayer :: [Float] -> Float -> Int -> Layer
-    createLayer weights bias neurons = replicate neurons (Neuron weights bias activationFunc)
+    createLayer weights' bias' neurons = replicate neurons (Neuron weights' bias' activationFunc)
