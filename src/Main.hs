@@ -3,6 +3,7 @@ import Control.Monad.Random ( evalRandT, newStdGen )
 import Initialization ( initializeNetwork )
 import DataLoader
     ( loadTrainingData, loadValidationData, preprocess )
+import ModelIO ( saveModel )
 
 main :: IO ()
 main = do
@@ -30,5 +31,6 @@ main = do
   let testPerformance = evaluate trainedNetwork processedValidationData -- use processedValidationData here
   print testPerformance
 
--- 6. Save the model
--- saveModel function needs to be adjusted according to your needs.
+ -- 6. Save the model
+  let modelPath = "trained_model.bin" -- Choose the path and filename for your saved model
+  saveModel modelPath trainedNetwork
