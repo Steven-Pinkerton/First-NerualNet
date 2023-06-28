@@ -10,6 +10,7 @@ import Loss (crossEntropyLoss)
 import System.Random ()
 import Types (BatchSize, Inputs, LearningRate, Network, Target)
 import Utility (argmax, mean, shuffle, shuffle', updateNetworkBatch)
+import System.IO.Unsafe (unsafePerformIO)
 
 {- | Train the network over multiple epochs.
  This function repeatedly applies `trainAndValidateEpoch` on a network over several epochs.
@@ -92,7 +93,10 @@ trainMiniBatch learningRate network miniBatch =
            in case maybeDeltas of
                 Just deltas ->
                   let inputsAndDeltas = zip inputs deltas
-                   in updateNetworkBatch learningRate network inputsAndDeltas
+                      updatedNetwork = updateNetworkBatch learningRate network inputsAndDeltas
+                   in unsafePerformIO $ do
+                        putStrLn "Mini-batch complete."
+                        return updatedNetwork
                 Nothing -> network
         Nothing -> network
 
