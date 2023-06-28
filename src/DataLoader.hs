@@ -1,62 +1,70 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use 'fromMaybe' from Relude" #-}
-{-# HLINT ignore "Use 'bimap' from Relude" #-}
-{-# HLINT ignore "Use 'lines' from Relude" #-}
-{-# HLINT ignore "Use readFileText" #-}
-
 module DataLoader where
 
-import Data.Binary.Get qualified as G
+import Data.Binary.Get ( getWord8, Get, getWord32be, runGet )
 import Data.ByteString.Lazy qualified as BL
-import Data.Text qualified as T
-import Data.Text.IO qualified as TIO
-import Types (Inputs, Target, Label)
-import Data.Text.Read (double)
-import Utility ( oneHotEncode, normalize )
+import Data.Vector.Storable qualified as VS
+import Utility (normalize, oneHotEncode) -- Import the functions from Utility.hs
 
+type Image = VS.Vector Float
+type Label = Int
+type Inputs = [Float]
+type Target = [Float]
 
 readImageHeader :: BL.ByteString -> (Int, Int, Int, Int)
-readImageHeader = G.runGet getHeader
+readImageHeader = runGet getHeader
   where
     getHeader = do
-      magicNumber <- G.getWord32be -- Magic number
-      numImages <- G.getWord32be -- Number of images
-      numRows <- G.getWord32be -- Number of rows
-      numColumns <- G.getWord32be -- Number of columns
+      magicNumber <- getWord32be -- Magic number
+      numImages <- getWord32be -- Number of images
+      numRows <- getWord32be -- Number of rows
+      numColumns <- getWord32be -- Number of columns
       return (fromIntegral magicNumber, fromIntegral numImages, fromIntegral numRows, fromIntegral numColumns)
 
 readLabelHeader :: BL.ByteString -> (Int, Int)
-readLabelHeader = G.runGet getHeader
+readLabelHeader = runGet getHeader
   where
     getHeader = do
-      magicNumber <- G.getWord32be -- Magic number
-      numLabels <- G.getWord32be -- Number of labels
+      magicNumber <- getWord32be -- Magic number
+      numLabels <- getWord32be -- Number of labels
       return (fromIntegral magicNumber, fromIntegral numLabels)
 
+readImage :: Get Image
+readImage = VS.map ((/ 255) . fromIntegral) . VS.fromList <$> replicateM (28 * 28) getWord8
 
--- | Load the training data from a file
-loadTrainingData :: FilePath -> IO [(Inputs, Label)]
-loadTrainingData path = do
-  rawData <- TIO.readFile path
-  return $ map parseDataLine $ T.lines rawData
+readLabel :: Get Label
+readLabel = fromIntegral <$> getWord8
 
--- | Load the validation data from a file
-loadValidationData :: FilePath -> IO [(Inputs, Label)]
-loadValidationData path = do
-  rawData <- TIO.readFile path
-  return $ map parseDataLine $ T.lines rawData
+loadImages :: FilePath -> IO [Image]
+loadImages path = do
+  input <- BL.readFile path
+  let (_, numImages, _, _) = readImageHeader input
+      images = runGet (replicateM numImages readImage) (BL.drop 16 input)
+  return images
 
--- | Preprocess the data
-preprocess :: [(Inputs, Label)] -> [(Inputs, Target)]
-preprocess = map (bimap normalize oneHotEncode)
+loadLabels :: FilePath -> IO [Label]
+loadLabels path = do
+  input <- BL.readFile path
+  let (_, numLabels) = readLabelHeader input
+      labels = runGet (replicateM numLabels readLabel) (BL.drop 8 input)
+  return labels
 
+loadData :: FilePath -> FilePath -> IO [(Image, Label)]
+loadData imagesPath labelsPath = do
+  images <- loadImages imagesPath
+  labels <- loadLabels labelsPath
+  return (zip images labels)
 
-parseDataLine :: T.Text -> (Inputs, Label)
-parseDataLine line =
-  let numbers = map parseToFloat $ T.splitOn "," line
-   in (fromMaybe [] $ viaNonEmpty tail numbers, round . fromMaybe 0 $ viaNonEmpty head numbers)
-  where
-    parseToFloat t = case double t of
-      Right (num, _) -> realToFrac num :: Float
-      Left _ -> 0
+normalizeImage :: Image -> Image
+normalizeImage = VS.map ((* 2) . subtract 0.5) -- maps values from [0, 1] to [-1, 1]
+
+toInputs :: Image -> Inputs
+toInputs = VS.toList
+
+preprocess :: [(Image, Label)] -> [(Inputs, Target)]
+preprocess = map (bimap (normalize . toInputs) oneHotEncode)
+
+loadTrainingData :: IO [(Inputs, Target)]
+loadTrainingData = preprocess <$> loadData "Data/train-images.idx3-ubyte" "Data/train-labels.idx1-ubyte"
+
+loadValidationData :: IO [(Inputs, Target)]
+loadValidationData = preprocess <$> loadData "Data/t10k-images.idx3-ubyte" "Data/t10k-labels.idx1-ubyte"
