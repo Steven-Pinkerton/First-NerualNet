@@ -36,14 +36,14 @@ readLabel = fromIntegral <$> getWord8
 
 loadImages :: FilePath -> IO [Image]
 loadImages path = do
-  input <- BL.readFile path
+  input <- readFileLBS path
   let (_, numImages, _, _) = readImageHeader input
       images = runGet (replicateM numImages readImage) (BL.drop 16 input)
   return images
 
 loadLabels :: FilePath -> IO [Label]
 loadLabels path = do
-  input <- BL.readFile path
+  input <- readFileLBS path
   let (_, numLabels) = readLabelHeader input
       labels = runGet (replicateM numLabels readLabel) (BL.drop 8 input)
   return labels
