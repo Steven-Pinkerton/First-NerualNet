@@ -5,12 +5,13 @@
 module Types where
 
 import Data.Serialize (Serialize)
+import Data.Binary ( Binary )
 
 -- The ActivationType is just a simple enumeration of the
 -- possible activation functions that a neuron could use.
 data ActivationType = Sigmoid | ReLU
   deriving stock (Generic, Show)
-  deriving anyclass (Serialize)
+  deriving anyclass (Serialize, Binary)
 
 -- The Neuron type represents a single neuron in the network.
 -- It has a list of weights (one for each input), a bias, and an activation type.
@@ -20,7 +21,7 @@ data Neuron = Neuron
   , activationType :: ActivationType
   }
   deriving stock (Generic, Show)
-  deriving anyclass (Serialize)
+  deriving anyclass (Serialize, Binary)
 
 -- A Layer is simply a list of Neurons.
 -- All neurons in a layer have the same number of weights,
