@@ -16,9 +16,10 @@ import System.IO.Unsafe (unsafePerformIO)
  This function repeatedly applies `trainAndValidateEpoch` on a network over several epochs.
 -}
 train' :: (RandomGen g, MonadIO m) => Network -> BatchSize -> [(Inputs, Target)] -> [(Inputs, Target)] -> LearningRate -> Int -> RandT g m Network
-train' network batchSize trainingData validationData learningRate epochs =
-  foldl' (trainAndValidateEpoch batchSize trainingData validationData learningRate) (return network) [1 .. epochs]
-
+train' network batchSize trainingData validationData learningRate epochs = do
+  let computations = map (trainAndValidateEpoch batchSize trainingData validationData learningRate (return network)) [1 .. epochs]
+  fromJust . viaNonEmpty last <$> sequence computations
+  
 {- | Train the network for one epoch and validate its performance.
  This function first shuffles the training data, then applies `trainMiniBatch` on the network for each mini-batch,
  calculates the validation loss, and then prints it out before returning the updated network.
